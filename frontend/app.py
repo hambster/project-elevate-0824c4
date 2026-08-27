@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 app = FastAPI(
     title="HR Assistant Frontend Web Service",
@@ -11,8 +11,16 @@ app = FastAPI(
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
-# Mount Static Files (CSS, JS)
+# Mount Static Directory
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/styles.css")
+async def get_css():
+    return FileResponse(os.path.join(STATIC_DIR, "styles.css"), media_type="text/css")
+
+@app.get("/app.js")
+async def get_js():
+    return FileResponse(os.path.join(STATIC_DIR, "app.js"), media_type="application/javascript")
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index():

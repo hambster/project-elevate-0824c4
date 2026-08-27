@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise HR & IT Agentic Assistant</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +47,7 @@
                         <span class="gradient-text">HR & IT Agentic Assistant</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Seamlessly orchestrating complex self-service transactions across WorkWeek HCM, ServiceImmediately ITSM, and authoritative HR policies.
+                        Seamlessly orchestrating complex self-service transactions across WorkWeek HCM, ServiceImmediately ITSM, and authoritative HR policies (US & Singapore Entities).
                     </p>
 
                     <!-- Bypass Auth Direct Action Card -->
@@ -79,7 +79,7 @@
                                 <input 
                                     type="text" 
                                     id="input-token" 
-                                    placeholder="Enter Employee Token (e.g. WW-10928, WW-88888)"
+                                    placeholder="Enter Employee Token (e.g. WW-10928, SG-40012)"
                                     value="WW-10928"
                                     autocomplete="off"
                                 >
@@ -92,10 +92,13 @@
                         <div class="quick-profiles-row">
                             <span class="row-label">Quick Selection:</span>
                             <button type="button" class="chip-profile active" data-token="WW-10928">
-                                <i class="fa-solid fa-user"></i> Alex Rivera (WW-10928)
+                                <i class="fa-solid fa-user"></i> Alex Rivera (WW-10928) [US]
+                            </button>
+                            <button type="button" class="chip-profile" data-token="SG-40012">
+                                <i class="fa-solid fa-user-gear"></i> Jun Wei Tan (SG-40012) [Singapore]
                             </button>
                             <button type="button" class="chip-profile" data-token="WW-88888">
-                                <i class="fa-solid fa-user-tie"></i> Sarah Chen (WW-88888)
+                                <i class="fa-solid fa-user-tie"></i> Sarah Chen (WW-88888) [Manager]
                             </button>
                         </div>
                     </div>
@@ -167,11 +170,18 @@
                                 <small>WorkWeek HCM Read</small>
                             </div>
                         </button>
-                        <button class="qa-prompt-chip" data-prompt="Please submit a time-off request for this coming Thursday and Friday.">
-                            <div class="chip-icon"><i class="fa-solid fa-plane-departure"></i></div>
+                        <button class="qa-prompt-chip" data-prompt="How many paid childcare leave days do employees in Singapore get per year?">
+                            <div class="chip-icon"><i class="fa-solid fa-child"></i></div>
                             <div class="chip-text">
-                                <strong>Submit Vacation Leave</strong>
-                                <small>WorkWeek HCM Mutation</small>
+                                <strong>SG Childcare Leave</strong>
+                                <small>Singapore Regional Policy</small>
+                            </div>
+                        </button>
+                        <button class="qa-prompt-chip" data-prompt="I'd like to give a $40 cash tip to a client assistant as a thank-you. That's under $50, so no approval needed, right?">
+                            <div class="chip-icon"><i class="fa-solid fa-gift"></i></div>
+                            <div class="chip-text">
+                                <strong>Cash Tip Gotcha</strong>
+                                <small>Ethics Prohibited Category</small>
                             </div>
                         </button>
                         <button class="qa-prompt-chip" data-prompt="I just read the remote work policy and saw I'm eligible for a home office monitor. Can you verify my remote status and order one for me?">
@@ -181,32 +191,11 @@
                                 <small>UC-2.1 Equipment Procurement</small>
                             </div>
                         </button>
-                        <button class="qa-prompt-chip" data-prompt="I need to take short-term medical leave starting next Monday. What is the process, and can you set it up for me?">
-                            <div class="chip-icon"><i class="fa-solid fa-notes-medical"></i></div>
+                        <button class="qa-prompt-chip" data-prompt="What is Altostrat's tuition reimbursement policy for employees pursuing a part-time master's degree?">
+                            <div class="chip-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                             <div class="chip-text">
-                                <strong>Medical Leave Setup</strong>
-                                <small>UC-2.2 Medical Leave Saga</small>
-                            </div>
-                        </button>
-                        <button class="qa-prompt-chip" data-prompt="I'm transferring to the London office next month. Can you tell me the relocation allowance, update my record, and get my building access sorted?">
-                            <div class="chip-icon"><i class="fa-solid fa-passport"></i></div>
-                            <div class="chip-text">
-                                <strong>London Relocation</strong>
-                                <small>UC-2.3 Relocation Transfer</small>
-                            </div>
-                        </button>
-                        <button class="qa-prompt-chip" data-prompt="What is the status of ticket INC123456?">
-                            <div class="chip-icon"><i class="fa-solid fa-ticket"></i></div>
-                            <div class="chip-text">
-                                <strong>Check Ticket Status</strong>
-                                <small>ServiceImmediately ITSM</small>
-                            </div>
-                        </button>
-                        <button class="qa-prompt-chip" data-prompt="What is the company's bereavement leave policy?">
-                            <div class="chip-icon"><i class="fa-solid fa-book-open"></i></div>
-                            <div class="chip-text">
-                                <strong>Bereavement Policy Q&A</strong>
-                                <small>Vertex AI Policy RAG</small>
+                                <strong>Tuition Refusal Check</strong>
+                                <small>Abstention / Absent Policy</small>
                             </div>
                         </button>
                     </div>
@@ -233,7 +222,7 @@
                     <div class="header-right">
                         <div class="backend-pill">
                             <span class="dot-pulse"></span>
-                            <span id="backend-label">Backend Decoupled API: Connected</span>
+                            <span id="backend-label">Standalone Frontend Service: Running</span>
                         </div>
                         <button id="btn-new-chat" class="btn-icon-action" title="New Session">
                             <i class="fa-solid fa-rotate-right"></i>
@@ -243,7 +232,7 @@
 
                 <!-- Q&A Conversation Container -->
                 <div id="chat-stream" class="chat-stream-container">
-                    <!-- Starter Cards Container (shown when empty) -->
+                    <!-- Starter Canvas -->
                     <div id="starter-canvas" class="starter-canvas">
                         <div class="starter-hero">
                             <div class="starter-sparkle"><i class="fa-solid fa-sparkles"></i></div>
@@ -257,20 +246,20 @@
                                 <h4>Check PTO Balance</h4>
                                 <p>Fetch real-time vacation & sick leave from WorkWeek HCM.</p>
                             </div>
-                            <div class="starter-card" data-prompt="I just read the remote work policy and saw I'm eligible for a home office monitor. Can you verify my remote status and order one for me?">
-                                <div class="card-icon purple"><i class="fa-solid fa-desktop"></i></div>
-                                <h4>Equipment Procurement</h4>
-                                <p>Verify remote status and dispatch hardware ticket in ServiceImmediately.</p>
+                            <div class="starter-card" data-prompt="How many paid childcare leave days do employees in Singapore get per year?">
+                                <div class="card-icon purple"><i class="fa-solid fa-child"></i></div>
+                                <h4>Singapore Childcare Leave</h4>
+                                <p>Query regional SG statutory leave entitlements.</p>
                             </div>
-                            <div class="starter-card" data-prompt="I need to take short-term medical leave starting next Monday. What is the process, and can you set it up for me?">
-                                <div class="card-icon green"><i class="fa-solid fa-notes-medical"></i></div>
-                                <h4>Medical Leave Setup</h4>
-                                <p>Quote medical leave guidelines and open confidential HRSD case.</p>
+                            <div class="starter-card" data-prompt="I'd like to give a $40 cash tip to a client assistant as a thank-you. That's under $50, so no approval needed, right?">
+                                <div class="card-icon green"><i class="fa-solid fa-gift"></i></div>
+                                <h4>Cash Tip Ethics Gotcha</h4>
+                                <p>Check prohibited cash courtesy rules vs approval limits.</p>
                             </div>
-                            <div class="starter-card" data-prompt="I'm transferring to the London office next month. Can you tell me the relocation allowance, update my record, and get my building access sorted?">
-                                <div class="card-icon amber"><i class="fa-solid fa-passport"></i></div>
-                                <h4>London Relocation</h4>
-                                <p>Check $5,000 allowance, update address, and issue facilities badge.</p>
+                            <div class="starter-card" data-prompt="What is Altostrat's tuition reimbursement policy for employees pursuing a part-time master's degree?">
+                                <div class="card-icon amber"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <h4>Tuition Abstention Refusal</h4>
+                                <p>Test refusal for unindexed / absent policies.</p>
                             </div>
                         </div>
                     </div>
@@ -309,6 +298,6 @@
         </section>
     </div>
 
-    <script src="app.js"></script>
+    <script src="/static/app.js"></script>
 </body>
 </html>
