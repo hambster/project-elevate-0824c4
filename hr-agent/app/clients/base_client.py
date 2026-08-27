@@ -1,7 +1,7 @@
-"""Base HTTP and FastMCP client with resilience, retries, and token authentication."""
 import asyncio
 from typing import Any, Dict, Optional
 import httpx
+from app.app_utils.context import request_mcp_token
 from app.config import settings
 
 
@@ -16,18 +16,22 @@ class BaseClient:
         max_retries: Optional[int] = None,
     ):
         self.base_url = (base_url or settings.base_url).rstrip("/")
-        self.token = token or settings.mcp_token
+        self.token = token
         self.timeout = timeout or settings.client_timeout_seconds
         self.max_retries = max_retries or settings.max_retries
         self.consecutive_timeouts = 0
         self.circuit_open = False
+
+    def get_token(self) -> str:
+        """Resolve effective token: Request Header Context -> Injected Token -> .env Config."""
+        return request_mcp_token.get() or self.token or settings.mcp_token
 
     def get_headers(self, custom_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
         """Construct required authentication and metadata headers."""
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json, text/event-stream",
-            "X-MCP-Token": self.token,
+            "X-MCP-Token": self.get_token(),
             "x-goog-authenticated-user-email": settings.default_user_email,
             "X-Origin-Entity": "AUTOMATION-AGENT",
         }

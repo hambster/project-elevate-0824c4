@@ -21,17 +21,37 @@ nest_asyncio.apply()
 
 from a2a.server.tasks import InMemoryTaskStore
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from starlette.middleware.base import BaseHTTPMiddleware
 from google.adk.cli.fast_api import get_fast_api_app
 from google.adk.runners import Runner
 
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
+from app.app_utils.context import request_mcp_token
 
 load_dotenv()
 allow_origins = (
     os.getenv("ALLOW_ORIGINS", "").split(",") if os.getenv("ALLOW_ORIGINS") else None
 )
+
+
+class MCPTokenMiddleware(BaseHTTPMiddleware):
+    """Middleware to capture MCP auth token passed via custom request headers."""
+
+    async def dispatch(self, request: Request, call_next):
+        custom_token = (
+            request.headers.get("x-mcp-token")
+            or request.headers.get("x-custom-mcp-token")
+            or request.headers.get("mcp-token")
+        )
+        token_ctx = request_mcp_token.set(custom_token) if custom_token else None
+        try:
+            response = await call_next(request)
+            return response
+        finally:
+            if token_ctx is not None:
+                request_mcp_token.reset(token_ctx)
 
 AGENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -68,6 +88,7 @@ app: FastAPI = get_fast_api_app(
     otel_to_cloud=True,
     lifespan=lifespan,
 )
+app.add_middleware(MCPTokenMiddleware)
 app.title = "hr-agent"
 app.description = "API for interacting with the Agent hr-agent"
 

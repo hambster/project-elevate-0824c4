@@ -122,6 +122,8 @@ class ServiceImmediatelyClient(BaseClient):
             )
             text = self._extract_mcp_text(mcp_res)
             if text:
+                if "error" in text.lower() or "duplicate" in text.lower():
+                    return {"error": text, "status": "FAILED", "message": text}
                 return {"status": "SUCCESS", "message": text, "ticket_id": text}
         except Exception:
             pass
@@ -191,6 +193,8 @@ class ServiceImmediatelyClient(BaseClient):
             )
             text = self._extract_mcp_text(mcp_res)
             if text:
+                if "error" in text.lower() or "not found" in text.lower():
+                    return {"error": text, "status_code": 404 if "not found" in text.lower() else 400}
                 return {"status": "SUCCESS", "message": text, "ticket_id": ticket_id, "new_status": status}
         except Exception:
             pass
