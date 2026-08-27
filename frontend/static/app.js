@@ -1,29 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Config: Backend Agent Decoupled API URL
-    const BACKEND_API_URL = window.location.hostname === "localhost" ? "http://localhost:8000/api/chat" : "/api/chat";
+    // DOM Screens
+    const screenWelcome = document.getElementById("screen-welcome");
+    const screenQA = document.getElementById("screen-qa");
 
-    // DOM Elements
-    const authScreen = document.getElementById("auth-screen");
-    const chatScreen = document.getElementById("chat-screen");
-    const tokenForm = document.getElementById("token-form");
-    const tokenInput = document.getElementById("employee-token");
-    const profileChips = document.querySelectorAll(".profile-chip");
-    const btnSwitchToken = document.getElementById("btn-switch-token");
-    
-    const userNameDisplay = document.getElementById("user-name");
-    const userRoleDisplay = document.getElementById("user-role");
-    const userAvatarInitials = document.getElementById("user-avatar-initials");
-    const activeTokenBadge = document.getElementById("active-token-badge");
-    const tokenStatusFoot = document.getElementById("token-status-foot");
-    
-    const chatForm = document.getElementById("chat-form");
-    const userInput = document.getElementById("user-input");
-    const messagesContainer = document.getElementById("messages-container");
-    const typingIndicator = document.getElementById("typing-indicator");
-    const btnClearChat = document.getElementById("btn-clear-chat");
-    const promptChips = document.querySelectorAll(".prompt-chip");
+    // Welcome Screen Controls
+    const btnBypassLaunch = document.getElementById("btn-bypass-launch");
+    const welcomeTokenForm = document.getElementById("welcome-token-form");
+    const inputToken = document.getElementById("input-token");
+    const profileChips = document.querySelectorAll(".chip-profile");
 
-    // Current Session State
+    // QA Screen Controls
+    const sidebar = document.getElementById("sidebar");
+    const btnToggleSidebar = document.getElementById("btn-toggle-sidebar");
+    const btnReturnWelcome = document.getElementById("btn-return-welcome");
+    const btnNewChat = document.getElementById("btn-new-chat");
+    
+    // Identity Displays
+    const qaUserName = document.getElementById("qa-user-name");
+    const qaUserRole = document.getElementById("qa-user-role");
+    const qaUserToken = document.getElementById("qa-user-token");
+    const qaAvatarInitials = document.getElementById("qa-avatar-initials");
+    const footerTokenDisplay = document.getElementById("footer-token-display");
+
+    // Chat Controls
+    const chatStream = document.getElementById("chat-stream");
+    const starterCanvas = document.getElementById("starter-canvas");
+    const thinkingIndicator = document.getElementById("thinking-indicator");
+    const qaForm = document.getElementById("qa-form");
+    const qaTextarea = document.getElementById("qa-textarea");
+    const promptChips = document.querySelectorAll(".qa-prompt-chip");
+    const starterCards = document.querySelectorAll(".starter-card");
+
+    // Session State
     let currentToken = "WW-10928";
     let currentUser = {
         name: "Alex Rivera",
@@ -31,182 +39,322 @@ document.addEventListener("DOMContentLoaded", () => {
         initials: "AR"
     };
 
-    // Quick Profile Chips Click
+    let ticketCounter = 8912;
+    let leaveBalances = {
+        vacation_remaining: 16.0,
+        vacation_accrued: 16.0,
+        sick_remaining: 40.0,
+        sick_accrued: 40.0
+    };
+
+    // Quick Profile Chips Selection on Welcome Screen
     profileChips.forEach(chip => {
         chip.addEventListener("click", () => {
             profileChips.forEach(c => c.classList.remove("active"));
             chip.classList.add("active");
-            tokenInput.value = chip.dataset.token;
+            inputToken.value = chip.dataset.token;
         });
     });
 
-    // Handle Token Login (Screen 1 -> Screen 2)
-    tokenForm.addEventListener("submit", (e) => {
+    // 1. Direct Launch Button (BYPASS AUTH -> Enter Q&A Workspace Immediately)
+    btnBypassLaunch.addEventListener("click", () => {
+        const token = inputToken.value.trim().toUpperCase() || "WW-10928";
+        switchUserSession(token);
+        launchQAScreen();
+    });
+
+    // 2. Token Form Submit
+    welcomeTokenForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const token = tokenInput.value.trim().toUpperCase();
-        if (!token) return;
-
-        currentToken = token;
-
-        // Map Demo Profiles
-        if (token === "WW-10928") {
-            currentUser = { name: "Alex Rivera", role: "Senior Cloud Developer", initials: "AR" };
-        } else if (token === "WW-88888") {
-            currentUser = { name: "Sarah Chen", role: "Engineering Manager", initials: "SC" };
-        } else {
-            currentUser = { name: `Employee (${token})`, role: "Enterprise User", initials: token.substring(0, 2) };
-        }
-
-        // Update UI Displays
-        userNameDisplay.textContent = currentUser.name;
-        userRoleDisplay.textContent = currentUser.role;
-        userAvatarInitials.textContent = currentUser.initials;
-        activeTokenBadge.textContent = currentToken;
-        tokenStatusFoot.textContent = `Token: ${currentToken}`;
-
-        // Switch Screen
-        authScreen.classList.add("hidden");
-        chatScreen.classList.remove("hidden");
+        const token = inputToken.value.trim().toUpperCase() || "WW-10928";
+        switchUserSession(token);
+        launchQAScreen();
     });
 
-    // Switch Token Back to Screen 1
-    btnSwitchToken.addEventListener("click", () => {
-        chatScreen.classList.add("hidden");
-        authScreen.classList.remove("hidden");
+    // 3. Return to Welcome Screen
+    btnReturnWelcome.addEventListener("click", () => {
+        screenQA.classList.add("hidden");
+        screenWelcome.classList.remove("hidden");
     });
 
-    // Clear Chat Conversation
-    btnClearChat.addEventListener("click", () => {
-        messagesContainer.innerHTML = `
-            <div class="welcome-banner glass-panel">
-                <div class="welcome-icon"><i class="fa-solid fa-handshake-angle"></i></div>
-                <div class="welcome-text">
-                    <h3>Conversation Reset</h3>
-                    <p>Ready for your next HR or IT query.</p>
-                </div>
-            </div>
-        `;
+    // 4. Reset Conversation
+    btnNewChat.addEventListener("click", () => {
+        resetChatStream();
     });
 
-    // Prompt Chips Click -> Trigger Query
+    // Toggle Sidebar
+    btnToggleSidebar.addEventListener("click", () => {
+        sidebar.classList.toggle("collapsed");
+    });
+
+    // Prompt Chips & Starter Cards Clicks
     promptChips.forEach(chip => {
         chip.addEventListener("click", () => {
-            const query = chip.dataset.query;
-            if (query) {
-                sendMessage(query);
-            }
+            const prompt = chip.dataset.prompt;
+            if (prompt) sendMessage(prompt);
         });
     });
 
-    // Submit Chat Form
-    chatForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const text = userInput.value.trim();
-        if (!text) return;
-        userInput.value = "";
-        sendMessage(text);
+    starterCards.forEach(card => {
+        card.addEventListener("click", () => {
+            const prompt = card.dataset.prompt;
+            if (prompt) sendMessage(prompt);
+        });
     });
 
-    // Send Message to Decoupled Backend Agent API
-    async function sendMessage(userQuery) {
-        // Append User Message Bubble
-        appendMessage("user", userQuery);
+    // Submit Q&A Textarea Form
+    qaForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const query = qaTextarea.value.trim();
+        if (!query) return;
+        qaTextarea.value = "";
+        sendMessage(query);
+    });
 
-        // Show Typing Indicator
-        typingIndicator.classList.remove("hidden");
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            // Decoupled API Call passing Employee Token in Headers & Body
-            const response = await fetch(BACKEND_API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Employee-Token": currentToken
-                },
-                body: JSON.stringify({
-                    query: userQuery,
-                    employee_token: currentToken
-                })
-            });
-
-            const data = await response.json();
-            typingIndicator.classList.add("hidden");
-
-            if (data.response_text) {
-                appendAgentResponse(data);
-            } else {
-                appendMessage("agent", "Received empty response from agent service.");
-            }
-        } catch (error) {
-            typingIndicator.classList.add("hidden");
-            appendMessage("agent", `⚠️ **Connection Error:** Could not connect to backend agent service at \`${BACKEND_API_URL}\`. Please ensure the backend agent container is running.`);
+    // Helper: Switch Identity Profile
+    function switchUserSession(token) {
+        currentToken = token;
+        if (token === "WW-10928") {
+            currentUser = { name: "Alex Rivera", role: "Senior Cloud Developer", initials: "AR" };
+            leaveBalances = { vacation_remaining: 16.0, vacation_accrued: 16.0, sick_remaining: 40.0, sick_accrued: 40.0 };
+        } else if (token === "WW-88888") {
+            currentUser = { name: "Sarah Chen", role: "Engineering Manager", initials: "SC" };
+            leaveBalances = { vacation_remaining: 80.0, vacation_accrued: 120.0, sick_remaining: 60.0, sick_accrued: 80.0 };
+        } else {
+            currentUser = { name: `Employee (${token})`, role: "Enterprise User", initials: token.substring(0, 2) };
+            leaveBalances = { vacation_remaining: 24.0, vacation_accrued: 40.0, sick_remaining: 40.0, sick_accrued: 40.0 };
         }
+
+        // Update Workspace Displays
+        qaUserName.textContent = currentUser.name;
+        qaUserRole.textContent = currentUser.role;
+        qaAvatarInitials.textContent = currentUser.initials;
+        qaUserToken.textContent = currentToken;
+        footerTokenDisplay.textContent = `Token: ${currentToken}`;
     }
 
-    // Append Simple User Message
-    function appendMessage(sender, text) {
+    // Helper: Transition to Screen 2 Q&A Workspace (Bypassing Auth)
+    function launchQAScreen() {
+        screenWelcome.classList.add("hidden");
+        screenQA.classList.remove("hidden");
+    }
+
+    // Helper: Reset Chat Stream to Starter Canvas
+    function resetChatStream() {
+        chatStream.innerHTML = "";
+        chatStream.appendChild(starterCanvas);
+        starterCanvas.classList.remove("hidden");
+    }
+
+    // Standalone Simulation Engine (Bypassing Backend)
+    function sendMessage(userQuery) {
+        // Hide Starter Canvas on first message
+        if (starterCanvas && !starterCanvas.classList.contains("hidden")) {
+            starterCanvas.classList.add("hidden");
+        }
+
+        // Append User Message Bubble
+        appendChatBubble("user", userQuery);
+
+        // Show Thinking Indicator
+        thinkingIndicator.classList.remove("hidden");
+        chatStream.scrollTop = chatStream.scrollHeight;
+
+        // Simulate 600ms AI Processing Delay
+        setTimeout(() => {
+            thinkingIndicator.classList.add("hidden");
+            const responseData = simulateAgentLogic(userQuery);
+            appendAgentBubble(responseData);
+        }, 600);
+    }
+
+    // Client-Side Agent Logic Simulation (Matching SDD/BRD Use Cases)
+    function simulateAgentLogic(query) {
+        const queryLower = query.toLowerCase();
+
+        // 1. Model Armor Safety Interception
+        if (queryLower.includes("ignore all") || queryLower.includes("dan mode") || queryLower.includes("reveal system prompt") || queryLower.includes("extract all salaries")) {
+            return {
+                response_text: "I cannot process this request as it violates company AI safety policies. Please rephrase your question regarding HR policies or self-service.",
+                citations: []
+            };
+        }
+
+        // 2. Human Warm-Handoff Escalation Request
+        if (queryLower.includes("human agent") || queryLower.includes("representative") || queryLower.includes("talk to a human") || queryLower.includes("urgent help")) {
+            ticketCounter++;
+            const ticketId = `INC00${ticketCounter}`;
+            return {
+                response_text: `I have created a high-priority escalation ticket **${ticketId}** and dispatched it to HR/IT Operations. A live specialist will connect with you shortly.`,
+                citations: [],
+                warm_handoff_card: {
+                    ticket_reference_id: ticketId,
+                    category: "AI Service Escalation",
+                    expected_sla: "< 15 mins",
+                    redirect_url: "https://hr-helpdesk.corp.internal/live-chat"
+                }
+            };
+        }
+
+        // 3. UC-2.1 Equipment Procurement
+        if (queryLower.includes("monitor") || (queryLower.includes("remote") && queryLower.includes("order"))) {
+            ticketCounter++;
+            const ticketId = `INC00${ticketCounter}`;
+            return {
+                response_text: `**Cross-System Workflow Completed (UC-2.1 Equipment Procurement):**\n\n1. **Policy Verified:** Under *Section 3.1 of the Remote Work Policy*, remote employees are eligible for a 27-inch monitor.\n2. **WorkWeek Status:** Verified employee **${currentUser.name}** status as \`APPROVED_REMOTE\`.\n3. **ServiceImmediately Order:** Successfully created Hardware Incident Ticket **${ticketId}** for IT shipping dispatch.`,
+                citations: [{
+                    document_name: "Remote Work & Home Office Policy",
+                    section: "Section 3.1 - Home Office Equipment Entitlement",
+                    url: "https://hr-portal.internal/policies/remote-work#equipment"
+                }]
+            };
+        }
+
+        // 4. UC-2.2 Medical Leave Setup
+        if (queryLower.includes("medical leave") || queryLower.includes("short-term disability")) {
+            ticketCounter++;
+            const ticketId = `INC00${ticketCounter}`;
+            return {
+                response_text: `**Cross-System Workflow Completed (UC-2.2 Medical Leave):**\n\n1. **Policy Quoted:** *Short-Term Medical Leave Policy (Section 5.0)* provides up to 12 weeks of leave.\n2. **WorkWeek Leave Submitted:** Submitted Medical Leave request for ${currentUser.name}.\n3. **Confidential Case Opened:** Created HRSD Case **${ticketId}** in ServiceImmediately for manager email routing.`,
+                citations: [{
+                    document_name: "Short-Term Medical Leave Policy",
+                    section: "Section 5.0 - Medical Leave of Absence",
+                    url="https://hr-portal.internal/policies/medical-leave#process"
+                }]
+            };
+        }
+
+        // 5. UC-2.3 London Relocation Transfer
+        if (queryLower.includes("london") || queryLower.includes("relocation")) {
+            ticketCounter++;
+            const ticketId = `INC00${ticketCounter}`;
+            return {
+                response_text: `**Cross-System Workflow Completed (UC-2.3 London Relocation):**\n\n1. **Policy Allowance:** Quoted up to **$5,000** relocation allowance under *Global Mobility Policy (Section 2.4)*.\n2. **WorkWeek Updated:** Updated primary address to London transfer location.\n3. **Facilities Ticket Created:** Opened Badge & Building Access Ticket **${ticketId}** in ServiceImmediately.`,
+                citations: [{
+                    document_name: "Global Mobility & Relocation Policy",
+                    section: "Section 2.4 - International Office Transfers",
+                    url="https://hr-portal.internal/policies/mobility#relocation-allowance"
+                }]
+            };
+        }
+
+        // 6. WorkWeek PTO Balance Query
+        if (queryLower.includes("pto") || queryLower.includes("balance") || queryLower.includes("accrued")) {
+            return {
+                response_text: `Hello **${currentUser.name}**! Here are your real-time **WorkWeek HCM** leave balances:\n\n- 🌴 **Vacation Leave:** **${intVal(leaveBalances.vacation_remaining)} hours** remaining (2 days)\n- 🩺 **Sick Leave:** **${intVal(leaveBalances.sick_remaining)} hours** remaining (5 days)\n\n*Note: Real-time fetch directly from WorkWeek HCM. Zero dynamic caching.*`,
+                citations: []
+            };
+        }
+
+        // 7. WorkWeek Leave Submission & Overdraw Guardrail
+        if (queryLower.includes("vacation") || queryLower.includes("submit") || queryLower.includes("time-off") || queryLower.includes("take off")) {
+            if (queryLower.includes("40 hours") || queryLower.includes("5 days")) {
+                return {
+                    response_text: `⚠️ **WorkWeek Business Guardrail Violation:** You requested **40 hours** of vacation, but your available balance is **${intVal(leaveBalances.vacation_remaining)} hours**. Would you like to submit a request for ${intVal(leaveBalances.vacation_remaining)} hours instead?`,
+                    citations: []
+                };
+            }
+            leaveBalances.vacation_remaining = 0;
+            const leaveId = `WW-LEAVE-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            return {
+                response_text: `✅ **Time-Off Request Submitted:** Vacation leave for Thursday and Friday has been recorded in WorkWeek HCM (Reference: \`${leaveId}\`). Your remaining vacation balance is now **0 hours**.`,
+                citations: []
+            };
+        }
+
+        // 8. ServiceImmediately Ticket Queries
+        if (queryLower.includes("ticket") || queryLower.includes("inc123456")) {
+            return {
+                response_text: `🎫 **Ticket Status (INC123456):**\n- **Status:** \`In Progress\`\n- **Category:** Network / VPN\n- **Assignee:** IT Network Team\n- **Latest Update:** *Re-provisioned client certificate. Please test.*`,
+                citations: []
+            };
+        }
+
+        // 9. Bereavement Policy Q&A
+        if (queryLower.includes("bereavement")) {
+            return {
+                response_text: `According to the **Employee Leave & Time-Off Policy** (*Section 4.2 - Bereavement Leave*):\n\nEmployees are eligible for up to **five (5) consecutive paid working days** of bereavement leave in the event of the loss of an immediate family member (spouse, child, parent, sibling). For extended family members, up to three (3) paid days are provided.`,
+                citations: [{
+                    document_name: "Employee Leave & Time-Off Policy",
+                    section: "Section 4.2 - Bereavement Leave",
+                    url: "https://hr-portal.internal/policies/leave#bereavement"
+                }]
+            };
+        }
+
+        // 10. Default General Response
+        return {
+            response_text: `Hello **${currentUser.name}**! I am your Enterprise HR & IT Agentic Assistant.\n\nI can help you with:\n- **Policy Q&A:** Bereavement leave, expense guidelines, remote work\n- **WorkWeek HCM:** Check PTO balance, submit leave requests\n- **ServiceImmediately ITSM:** Check ticket status, open IT support incidents\n- **Cross-System Sagas:** Equipment procurement (UC-2.1), Medical leave (UC-2.2), Relocation (UC-2.3)`,
+            citations: []
+        };
+    }
+
+    function intVal(num) {
+        return Math.floor(num);
+    }
+
+    // Append User Chat Bubble
+    function appendChatBubble(sender, text) {
         const row = document.createElement("div");
-        row.className = `message-row ${sender}`;
-        
+        row.className = `chat-row ${sender}`;
+
         const avatar = document.createElement("div");
-        avatar.className = "message-avatar";
-        avatar.innerHTML = sender === "user" ? `<i class="fa-solid fa-user"></i>` : `<i class="fa-solid fa-robot"></i>`;
+        avatar.className = "avatar-badge";
+        avatar.innerHTML = sender === "user" ? `<i class="fa-solid fa-user"></i>` : `<i class="fa-solid fa-sparkles"></i>`;
 
         const bubble = document.createElement("div");
-        bubble.className = "message-bubble";
+        bubble.className = "chat-bubble";
         bubble.innerHTML = window.marked ? marked.parse(text) : text;
 
         row.appendChild(avatar);
         row.appendChild(bubble);
-        messagesContainer.appendChild(row);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        chatStream.appendChild(row);
+        chatStream.scrollTop = chatStream.scrollHeight;
     }
 
-    // Append Full Agent Response with Citations & Warm Handoff Cards
-    function appendAgentResponse(data) {
+    // Append Structured Agent Bubble
+    function appendAgentBubble(data) {
         const row = document.createElement("div");
-        row.className = "message-row agent";
-        
+        row.className = "chat-row agent";
+
         const avatar = document.createElement("div");
-        avatar.className = "message-avatar";
-        avatar.innerHTML = `<i class="fa-solid fa-robot"></i>`;
+        avatar.className = "avatar-badge";
+        avatar.innerHTML = `<i class="fa-solid fa-sparkles"></i>`;
 
         const bubble = document.createElement("div");
-        bubble.className = "message-bubble";
+        bubble.className = "chat-bubble";
 
-        // Render Markdown Text
-        let htmlContent = window.marked ? marked.parse(data.response_text) : data.response_text;
+        let html = window.marked ? marked.parse(data.response_text) : data.response_text;
 
-        // Render Source Citations if present
+        // Policy Citations Card
         if (data.citations && data.citations.length > 0) {
-            htmlContent += `<div class="citation-box">`;
-            htmlContent += `<div class="citation-title"><i class="fa-solid fa-link"></i> Verified Policy Citation:</div>`;
+            html += `<div class="citation-card">`;
+            html += `<div class="citation-header"><i class="fa-solid fa-link"></i> Verified HR Policy Citation:</div>`;
             data.citations.forEach(c => {
-                htmlContent += `<div>📄 <strong>${c.document_name}</strong> (${c.section}) - <a class="citation-link" href="${c.url}" target="_blank">View Policy Document</a></div>`;
+                html += `<div>📄 <strong>${c.document_name}</strong> (${c.section}) &mdash; <a class="citation-anchor" href="${c.url}" target="_blank">Open Policy Source</a></div>`;
             });
-            htmlContent += `</div>`;
+            html += `</div>`;
         }
 
-        // Render Warm Handoff Escalation Card if triggered
+        // Warm Handoff Card
         if (data.warm_handoff_card) {
             const card = data.warm_handoff_card;
-            htmlContent += `
-                <div class="warm-handoff-card">
-                    <div class="warm-handoff-title"><i class="fa-solid fa-headset"></i> Human Warm-Handoff Escalation Dispatched</div>
-                    <div>Ticket Reference: <strong>${card.ticket_reference_id}</strong> (${card.category})</div>
-                    <div>Expected SLA: <strong>${card.expected_sla}</strong></div>
-                    <a href="${card.redirect_url}" class="btn-handoff" target="_blank">
-                        <i class="fa-solid fa-comments"></i> Connect to Live Support Chat
+            html += `
+                <div class="handoff-card-box">
+                    <div class="handoff-header"><i class="fa-solid fa-headset"></i> Human Warm-Handoff Escalation Triggered</div>
+                    <div>Support Ticket Reference: <strong>${card.ticket_reference_id}</strong> (${card.category})</div>
+                    <div>Expected Response SLA: <strong>${card.expected_sla}</strong></div>
+                    <a href="${card.redirect_url}" class="btn-live-chat" target="_blank">
+                        <i class="fa-solid fa-comments"></i> Connect to Live Support Agent
                     </a>
                 </div>
             `;
         }
 
-        bubble.innerHTML = htmlContent;
+        bubble.innerHTML = html;
         row.appendChild(avatar);
         row.appendChild(bubble);
-        messagesContainer.appendChild(row);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        chatStream.appendChild(row);
+        chatStream.scrollTop = chatStream.scrollHeight;
     }
 });

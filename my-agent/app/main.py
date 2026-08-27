@@ -1,11 +1,18 @@
 import os
+import sys
 from fastapi import FastAPI, Request, Header
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
-from app.agent_engine import HRAgentEngine
+# Ensure app module path is resolved cleanly
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from app.agent_engine import HRAgentEngine
+except ModuleNotFoundError:
+    from agent_engine import HRAgentEngine
 
 app = FastAPI(
     title="HR Agentic Solution Backend Service",
