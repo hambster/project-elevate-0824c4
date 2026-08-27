@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise HR & IT Agentic Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <!-- SCREEN 1: EMPLOYEE AUTHENTICATION / DELEGATION TOKEN SCREEN -->
+    <div id="auth-screen" class="screen-container">
+        <div class="auth-card glass-panel">
+            <div class="auth-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2>Enterprise HR & IT Portal</h2>
+                <p class="subtitle">AI-Driven Virtual Assistant (MVP 1)</p>
+            </div>
+
+            <div class="auth-body">
+                <div class="security-banner">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Zero-Trust Security & Identity Verification Enforced</span>
+                </div>
+
+                <form id="token-form">
+                    <div class="form-group">
+                        <label for="employee-token">
+                            <i class="fa-solid fa-key"></i> Enter Employee Delegation Token / ID
+                        </label>
+                        <input 
+                            type="text" 
+                            id="employee-token" 
+                            placeholder="e.g. WW-10928" 
+                            required 
+                            autocomplete="off"
+                            value="WW-10928"
+                        >
+                        <span class="field-hint">Token is passed to downstream WorkWeek HCM & ServiceImmediately MCP services.</span>
+                    </div>
+
+                    <div class="quick-profiles">
+                        <label>Demo Employee Test Profiles:</label>
+                        <div class="profile-buttons">
+                            <button type="button" class="profile-chip active" data-token="WW-10928">
+                                <i class="fa-solid fa-user-check"></i>
+                                <span>Alex Rivera (WW-10928)</span>
+                                <small>Remote Cloud Developer</small>
+                            </button>
+                            <button type="button" class="profile-chip" data-token="WW-88888">
+                                <i class="fa-solid fa-user-tie"></i>
+                                <span>Sarah Chen (WW-88888)</span>
+                                <small>Engineering Manager</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-login" class="btn-primary">
+                        <span>Authenticate & Access Assistant</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                <div class="compliance-tags">
+                    <span><i class="fa-solid fa-shield-cat"></i> Model Armor Gate</span>
+                    <span><i class="fa-solid fa-user-shield"></i> Cloud DLP Masked</span>
+                    <span><i class="fa-solid fa-diagram-project"></i> Saga Multi-Hop</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: CONVERSATIONAL ASSISTANT WORKSPACE -->
+    <div id="chat-screen" class="screen-container hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="app-brand">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>HR Assistant</span>
+                </div>
+                <span class="version-badge">MVP 1</span>
+            </div>
+
+            <div class="user-profile-widget">
+                <div class="avatar-circle" id="user-avatar-initials">AR</div>
+                <div class="user-details">
+                    <h4 id="user-name">Alex Rivera</h4>
+                    <p id="user-role">Senior Cloud Developer</p>
+                    <div class="user-meta">
+                        <span class="badge-token" id="active-token-badge">WW-10928</span>
+                        <span class="badge-status online"><i class="fa-solid fa-circle"></i> Authenticated</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Quick Action Prompts</h3>
+                <div class="quick-prompts-list">
+                    <button class="prompt-chip" data-query="How many hours of PTO do I currently have accrued?">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Check PTO Balance</span>
+                    </button>
+                    <button class="prompt-chip" data-query="Please submit a time-off request for this coming Thursday and Friday.">
+                        <i class="fa-solid fa-plane-departure"></i>
+                        <span>Submit Vacation Leave</span>
+                    </button>
+                    <button class="prompt-chip" data-query="I just read the remote work policy and saw I'm eligible for a home office monitor. Can you verify my remote status and order one for me?">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>Order Home Monitor (UC-2.1)</span>
+                    </button>
+                    <button class="prompt-chip" data-query="I need to take short-term medical leave starting next Monday. What is the process, and can you set it up for me?">
+                        <i class="fa-solid fa-notes-medical"></i>
+                        <span>Medical Leave (UC-2.2)</span>
+                    </button>
+                    <button class="prompt-chip" data-query="I'm transferring to the London office next month. Can you tell me the relocation allowance, update my record, and get my building access sorted?">
+                        <i class="fa-solid fa-passport"></i>
+                        <span>London Relocation (UC-2.3)</span>
+                    </button>
+                    <button class="prompt-chip" data-query="What is the status of ticket INC123456?">
+                        <i class="fa-solid fa-ticket"></i>
+                        <span>Check Ticket INC123456</span>
+                    </button>
+                    <button class="prompt-chip" data-query="What is the company's bereavement leave policy?">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                        <span>Bereavement Leave Policy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="btn-switch-token" class="btn-secondary">
+                    <i class="fa-solid fa-arrow-left-long"></i>
+                    <span>Switch Employee Token</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Top Navbar -->
+            <header class="top-nav glass-panel">
+                <div class="nav-title">
+                    <h2>Enterprise Conversational Hub</h2>
+                    <p>Orchestrating WorkWeek HCM, ServiceImmediately ITSM & Policy RAG</p>
+                </div>
+                <div class="nav-actions">
+                    <div class="backend-status-pill">
+                        <span class="indicator green"></span>
+                        <span id="backend-status-text">Backend Decoupled API: Connected</span>
+                    </div>
+                    <button id="btn-clear-chat" class="icon-btn" title="Clear Conversation">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Conversation Messages Stream -->
+            <div class="messages-container" id="messages-container">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner glass-panel">
+                    <div class="welcome-icon">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                    </div>
+                    <div class="welcome-text">
+                        <h3>Welcome to your HR & IT Agentic Workspace</h3>
+                        <p>Ask policy questions, manage PTO leave, create IT tickets, or execute multi-system workflows.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator hidden" id="typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <span>Agent orchestrating request...</span>
+            </div>
+
+            <!-- Input Controls Bar -->
+            <footer class="input-container glass-panel">
+                <form id="chat-form">
+                    <textarea 
+                        id="user-input" 
+                        placeholder="Type your HR question or transaction request..." 
+                        rows="1" 
+                        required
+                    ></textarea>
+                    <button type="submit" id="btn-send" class="btn-send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="input-footer-info">
+                    <span><i class="fa-solid fa-shield-halved"></i> Inputs DLP Redacted & Model Armor Inspected (&lt;150ms)</span>
+                    <span id="token-status-foot">Token: WW-10928</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
