@@ -1,0 +1,333 @@
+{
+  "name": "HR Agentic Solution — Golden Benchmark Dataset",
+  "description": "Golden evaluation dataset for MVP 1 aligned with BRD/SDD specifications and the 5-dimension rubric (correctness, grounding, reasoning, abstention, citation).",
+  "rubric": {
+    "scale": [0, 1, 2],
+    "dimensions": {
+      "correctness": {
+        "weight": 3,
+        "desc": "Required facts, entitlement numbers, dates, and tool parameters are present and correct."
+      },
+      "grounding": {
+        "weight": 3,
+        "desc": "Every claim is supported by the retrieved policy text or verified tool payload; zero hallucinations."
+      },
+      "reasoning": {
+        "weight": 3,
+        "desc": "Catches business rule gotchas, balance overdraws, chronological date errors, or invalid status transitions."
+      },
+      "abstention": {
+        "weight": 2,
+        "desc": "Answers when covered by HR policy/system; refuses gracefully when ungrounded or out-of-domain."
+      },
+      "citation": {
+        "weight": 1,
+        "desc": "Includes Sources section with clickable markdown links to authoritative policy URLs."
+      }
+    },
+    "gates": {
+      "grounding_zero_caps_case_at": 0.40,
+      "badge_min_on_hard_cases": 0.80,
+      "hard_cases": [
+        "tc_policy_pet_leave_absent",
+        "tc_hcm_balance_overdraw_gotcha",
+        "tc_itsm_illegal_transition_gotcha",
+        "tc_saga_downstream_failure_rollback"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "tc_policy_bereavement_leave",
+      "smoke": true,
+      "query": "What is the company's bereavement leave policy?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "5",
+        "paid working days",
+        "immediate family"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "citation"
+      ],
+      "expected_sources": [
+        "POL-BEREAVEMENT-001",
+        "Section 4.2"
+      ],
+      "ground_truth_notes": "Up to 5 consecutive paid working days of bereavement leave for an immediate family member (spouse, child, parent, sibling). Up to 3 paid days for extended family members."
+    },
+    {
+      "id": "tc_policy_noise_canceling_headphones",
+      "smoke": false,
+      "query": "Are employees allowed to expense noise-canceling headphones?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "150",
+        "manager pre-approval"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "citation"
+      ],
+      "expected_sources": [
+        "POL-EXPENSE-005",
+        "Section 6.3"
+      ],
+      "ground_truth_notes": "Noise-canceling headphones are reimbursable up to a maximum limit of US$150 once every two years, subject to written manager pre-approval in the expense portal."
+    },
+    {
+      "id": "tc_policy_pet_leave_absent",
+      "smoke": false,
+      "query": "What is the company policy for taking time off for a pet's birthday?",
+      "expect_refusal": true,
+      "expected_substrings": [
+        "I could not find an answer to this in our approved HR policy documents"
+      ],
+      "dimensions": [
+        "abstention",
+        "grounding"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "The HR handbook has no pet birthday leave policy. The agent must refuse and state it has no policy on file rather than inventing a policy."
+    },
+    {
+      "id": "tc_policy_out_of_domain_coding",
+      "smoke": false,
+      "query": "Can you write a Python function to sort a list of numbers?",
+      "expect_refusal": true,
+      "expected_substrings": [
+        "I could not find an answer to this in our approved HR policy documents"
+      ],
+      "dimensions": [
+        "abstention",
+        "grounding"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "General software engineering/coding queries fall outside corporate HR policy domain. The agent must enforce domain containment and refuse."
+    },
+    {
+      "id": "tc_hcm_pto_balance_lookup",
+      "smoke": true,
+      "query": "How many hours of PTO do I currently have accrued?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "16",
+        "vacation",
+        "40",
+        "sick"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "Alex Rivera (WW-10928) has 16 hours of remaining vacation leave (16 accrued, 0 used) and 40 hours of remaining sick leave (40 accrued, 0 used)."
+    },
+    {
+      "id": "tc_hcm_valid_pto_submission",
+      "smoke": false,
+      "query": "Please submit a time-off request for this coming Thursday and Friday.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "submitted successfully",
+        "WW-LEAVE-"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "16 hours requested for Thu-Fri. 16 hours requested <= 16 hours remaining balance. Submission succeeds in WorkWeek returning leave ID."
+    },
+    {
+      "id": "tc_hcm_balance_overdraw_gotcha",
+      "smoke": false,
+      "query": "Please submit a time-off request for 40 hours of vacation next week.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "requested 40 hours",
+        "available balance is 16 hours"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "gotcha": "Being eligible to request PTO does not allow overdrawing past accrued balance.",
+      "ground_truth_notes": "Requesting 40 hours of vacation when remaining balance is only 16 hours violates WorkWeek balance constraints (FR-3.3). Agent must reject request and prompt user for parameter correction."
+    },
+    {
+      "id": "tc_hcm_invalid_date_chronology",
+      "smoke": false,
+      "query": "Please submit vacation leave with start date 2026-09-10 and end date 2026-09-05.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "Start date",
+        "cannot be after end date"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "Start date 2026-09-10 is after end date 2026-09-05. Violates temporal validity constraints. Must be rejected."
+    },
+    {
+      "id": "tc_itsm_ticket_status_inquiry",
+      "smoke": true,
+      "query": "What is the status of ticket INC123456?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "INC123456",
+        "In Progress",
+        "VPN connection drops"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "Ticket INC123456 is in 'In Progress' state assigned to IT Network Team for VPN connection drops."
+    },
+    {
+      "id": "tc_itsm_invalid_format_guardrail",
+      "smoke": false,
+      "query": "What is the status of ticket INC99?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "must follow the 'INC' followed by 6 digits format"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "Ticket ID INC99 fails format validation (INC + 6 digits). Must return validation error message."
+    },
+    {
+      "id": "tc_itsm_create_vpn_incident",
+      "smoke": false,
+      "query": "Create an IT ticket because my VPN connection keeps dropping.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "Created incident ticket",
+        "INC"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding"
+      ],
+      "expected_sources": [],
+      "ground_truth_notes": "Opens new support ticket in ServiceImmediately under Category 'Network / IT' and priority '3 - Moderate'."
+    },
+    {
+      "id": "tc_itsm_illegal_transition_gotcha",
+      "smoke": false,
+      "query": "Close ticket INC008912 directly.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "cannot be closed directly without resolution notes"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "gotcha": "Requesting to close a ticket directly without resolution notes violates ITSM lifecycle transition rules.",
+      "ground_truth_notes": "Ticket INC008912 is currently 'In Progress' and cannot be transitioned to 'Closed' directly without resolution notes (FR-4.3)."
+    },
+    {
+      "id": "tc_saga_equipment_procurement_uc21",
+      "smoke": false,
+      "query": "I just read the remote work policy and saw I'm eligible for a home office monitor. Can you verify my remote status and order one for me?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "APPROVED_REMOTE",
+        "monitor",
+        "INC"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning",
+        "citation"
+      ],
+      "expected_sources": [
+        "POL-REMOTE-002",
+        "Section 3.1"
+      ],
+      "ground_truth_notes": "UC-2.1 Workflow: 1) Query remote policy POL-REMOTE-002 -> eligible for 27-inch monitor; 2) Query WorkWeek profile -> verify APPROVED_REMOTE status; 3) Create Hardware Incident Ticket in ServiceImmediately."
+    },
+    {
+      "id": "tc_saga_medical_leave_uc22",
+      "smoke": false,
+      "query": "I need to take short-term medical leave starting next Monday. What is the process, and can you set it up for me?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "Medical Leave",
+        "WorkWeek",
+        "ServiceImmediately"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning",
+        "citation"
+      ],
+      "expected_sources": [
+        "POL-MEDICAL-003",
+        "Section 5.0"
+      ],
+      "ground_truth_notes": "UC-2.2 Workflow: 1) Quote medical leave policy POL-MEDICAL-003; 2) Submit Sick Leave request in WorkWeek; 3) Create confidential HRSD case in ServiceImmediately for manager email routing."
+    },
+    {
+      "id": "tc_saga_relocation_uc23",
+      "smoke": false,
+      "query": "I'm transferring to the London office next month. Can you tell me the relocation allowance, update my record, and get my building access sorted?",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "$5,000",
+        "WorkWeek",
+        "Facilities"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning",
+        "citation"
+      ],
+      "expected_sources": [
+        "POL-RELOCATION-004",
+        "Section 2.4"
+      ],
+      "ground_truth_notes": "UC-2.3 Workflow: 1) Quote $5,000 relocation limit from POL-RELOCATION-004; 2) Update home/office address in WorkWeek; 3) Open Facilities Badge ticket in ServiceImmediately."
+    },
+    {
+      "id": "tc_saga_downstream_failure_rollback",
+      "smoke": false,
+      "query": "Simulate UC-2.1 where WorkWeek PTO succeeds but ServiceImmediately ticket creation fails due to HTTP 500.",
+      "expect_refusal": false,
+      "expected_substrings": [
+        "WorkWeek",
+        "notification setup encountered an issue",
+        "HR Operations has been notified"
+      ],
+      "dimensions": [
+        "correctness",
+        "grounding",
+        "reasoning"
+      ],
+      "expected_sources": [],
+      "gotcha": "A partial multi-hop failure must trigger a Saga compensating rollback rather than leaving systems in a desynchronized state.",
+      "ground_truth_notes": "Executing cancel_leave_request in WorkWeek to rollback submitted PTO and emitting dlq-unresolved-sagas event to Cloud Audit store (NFR-4.3)."
+    }
+  ]
+}
