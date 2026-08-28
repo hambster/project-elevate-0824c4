@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise HR & IT Agentic Assistant</title>
+    <title>EmpowerHub - Employee Service AI</title>
     <link rel="stylesheet" href="/static/styles.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +32,7 @@
                         <div class="brand-icon">
                             <i class="fa-solid fa-sparkles"></i>
                         </div>
-                        <span class="brand-name">Enterprise AGY Hub</span>
+                        <span class="brand-name">EmpowerHub</span>
                     </div>
                     <div class="top-nav-pills">
                         <span class="status-pill green"><i class="fa-solid fa-shield-check"></i> System Operational</span>
@@ -40,88 +40,93 @@
                     </div>
                 </header>
 
-                <!-- Hero Section -->
-                <div class="hero-section">
-                    <h1 class="hero-title">
-                        Next-Gen Conversational <br>
-                        <span class="gradient-text">HR & IT Agentic Assistant</span>
-                    </h1>
-                    <p class="hero-subtitle">
-                        Seamlessly orchestrating complex self-service transactions across WorkWeek HCM, ServiceImmediately ITSM, and authoritative HR policies (US & Singapore Entities).
-                    </p>
-
-                    <!-- Bypass Auth Direct Action Card -->
-                    <div class="direct-launch-box glass-card">
-                        <div class="launch-header">
-                            <div class="user-avatar-badge">
-                                <i class="fa-solid fa-user-gear"></i>
+                <!-- Vertically Centered Main Content Area -->
+                <div class="welcome-center-body">
+                    <!-- Horizontal 2-Column Hero & Sign-In Layout -->
+                    <div class="welcome-grid-layout">
+                        <!-- Left Column: Value Proposition & Tagline -->
+                        <div class="hero-left-column">
+                            <div class="hero-badge-tag">
+                                <i class="fa-solid fa-shield-cat"></i>
+                                <span>Enterprise AI Service</span>
                             </div>
-                            <div class="launch-user-info">
-                                <h3>Authenticated Active Session</h3>
-                                <p>Default Profile: <strong>Alex Rivera (WW-10928)</strong> — Senior Cloud Developer</p>
+                            <h1 class="hero-title">
+                                Your 24/7 AI Workplace <br>
+                                <span class="gradient-text">Smart Companion</span>
+                            </h1>
+                            <p class="hero-subtitle">
+                                Instant HR answers, IT service requests, and policy guidance — powered by intelligent autonomous agents.
+                            </p>
+
+                            <div class="hero-features-list">
+                                <div class="feature-bullet">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>Real-Time HCM Leave & ITSM Request Automation</span>
+                                </div>
+                                <div class="feature-bullet">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>Confidential Pre-LLM Data Armor Scanning</span>
+                                </div>
                             </div>
-                            <button id="btn-bypass-launch" class="btn-hero-launch">
-                                <span>Launch Q&A Workspace</span>
-                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                            </button>
                         </div>
-                    </div>
 
-                    <!-- Custom Token Form Accordion / Option -->
-                    <div class="token-auth-section glass-card">
-                        <div class="section-title">
-                            <i class="fa-solid fa-key"></i>
-                            <span>Switch Employee Token / Identity Delegation</span>
-                        </div>
-                        <form id="welcome-token-form" class="token-form-grid">
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-id-badge input-icon"></i>
-                                <input 
-                                    type="text" 
-                                    id="input-token" 
-                                    placeholder="Enter Employee Token (e.g. WW-10928, SG-40012)"
-                                    value="WW-10928"
-                                    autocomplete="off"
-                                >
+                        <!-- Right Column: Employee Token Authentication Card (No Bypass) -->
+                        <div class="hero-right-column">
+                            <div class="token-auth-section glass-card">
+                                <div class="auth-card-header">
+                                    <div class="auth-icon-badge">
+                                        <i class="fa-solid fa-user-lock"></i>
+                                    </div>
+                                    <div class="auth-header-text">
+                                        <h3>Employee Token Sign-In</h3>
+                                        <p>Authenticate with your employee token to access your persona & start your AI session.</p>
+                                    </div>
+                                </div>
+
+                                <form id="welcome-token-form" class="token-form-stacked">
+                                    <label for="input-token" class="input-label">Employee Identity Token</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-id-badge input-icon"></i>
+                                        <input 
+                                            type="text" 
+                                            id="input-token" 
+                                            placeholder="e.g. WW-10928, SG-40012, or mcp_..."
+                                            value="WW-10928"
+                                            required
+                                            autocomplete="off"
+                                        >
+                                    </div>
+                                    <div id="token-error-banner" class="token-error-banner hidden"></div>
+                                    <button type="submit" id="btn-bypass-launch" class="btn-primary-launch">
+                                        <span>Sign In & Launch Workspace</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </form>
                             </div>
-                            <button type="submit" class="btn-secondary-action">
-                                <span>Apply Token</span>
-                            </button>
-                        </form>
-
-                        <div class="quick-profiles-row">
-                            <span class="row-label">Quick Selection:</span>
-                            <button type="button" class="chip-profile active" data-token="WW-10928">
-                                <i class="fa-solid fa-user"></i> Alex Rivera (WW-10928) [US]
-                            </button>
-                            <button type="button" class="chip-profile" data-token="SG-40012">
-                                <i class="fa-solid fa-user-gear"></i> Jun Wei Tan (SG-40012) [Singapore]
-                            </button>
-                            <button type="button" class="chip-profile" data-token="WW-88888">
-                                <i class="fa-solid fa-user-tie"></i> Sarah Chen (WW-88888) [Manager]
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Security Metrics Grid -->
-                    <div class="security-features-grid">
-                        <div class="feature-card">
-                            <i class="fa-solid fa-shield-halved feature-icon"></i>
-                            <h4>Model Armor Gate</h4>
-                            <p>Pre-LLM injection & jailbreak scanning in &lt;150ms</p>
-                        </div>
-                        <div class="feature-card">
-                            <i class="fa-solid fa-user-shield feature-icon"></i>
-                            <h4>Cloud DLP Redaction</h4>
-                            <p>Ingress & egress SPII masking (SSNs, Card IDs, Passwords)</p>
-                        </div>
-                        <div class="feature-card">
-                            <i class="fa-solid fa-diagram-project feature-icon"></i>
-                            <h4>Saga Orchestration</h4>
-                            <p>Cross-system transaction execution with automatic rollback</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Bottom Section: Exactly 3 Platform Capability Cards -->
+                <footer class="welcome-bottom-footer">
+                    <div class="security-features-grid">
+                        <div class="feature-card glass-card">
+                            <i class="fa-solid fa-robot feature-icon"></i>
+                            <h4>Autonomous Agentic Engine</h4>
+                            <p>Multi-agent orchestration & direct tool execution across WorkWeek HCM and ServiceImmediately ITSM.</p>
+                        </div>
+                        <div class="feature-card glass-card">
+                            <i class="fa-solid fa-shield-halved feature-icon"></i>
+                            <h4>Enterprise Security & DLP</h4>
+                            <p>Pre-LLM Model Armor scanning (&lt;150ms) and real-time SPII redaction protecting sensitive user data.</p>
+                        </div>
+                        <div class="feature-card glass-card">
+                            <i class="fa-solid fa-diagram-project feature-icon"></i>
+                            <h4>Saga Transaction Integrity</h4>
+                            <p>Stateful multi-system transaction execution with automated rollbacks and two-phase safety.</p>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </section>
 
@@ -135,8 +140,8 @@
                     <div class="app-logo">
                         <div class="logo-icon"><i class="fa-solid fa-sparkles"></i></div>
                         <div class="logo-text">
-                            <h3>HR Agentic</h3>
-                            <span>Decoupled Service</span>
+                            <h3>EmpowerHub</h3>
+                            <span>Employee Service AI</span>
                         </div>
                     </div>
                     <button id="btn-toggle-sidebar" class="btn-icon" title="Toggle Panel">

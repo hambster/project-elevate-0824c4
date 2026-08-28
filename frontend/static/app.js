@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnBypassLaunch = document.getElementById("btn-bypass-launch");
     const welcomeTokenForm = document.getElementById("welcome-token-form");
     const inputToken = document.getElementById("input-token");
-    const profileChips = document.querySelectorAll(".chip-profile");
 
     // QA Screen Controls
     const sidebar = document.getElementById("sidebar");
@@ -48,29 +47,39 @@ document.addEventListener("DOMContentLoaded", () => {
         sg_childcare_remaining: 6.0
     };
 
-    // Quick Profile Chips Selection on Welcome Screen
-    profileChips.forEach(chip => {
-        chip.addEventListener("click", () => {
-            profileChips.forEach(c => c.classList.remove("active"));
-            chip.classList.add("active");
-            inputToken.value = chip.dataset.token;
+
+    const tokenErrorBanner = document.getElementById("token-error-banner");
+
+    function showTokenError(msg) {
+        if (tokenErrorBanner) {
+            tokenErrorBanner.textContent = msg;
+            tokenErrorBanner.classList.remove("hidden");
+        }
+    }
+
+    function hideTokenError() {
+        if (tokenErrorBanner) {
+            tokenErrorBanner.classList.add("hidden");
+            tokenErrorBanner.textContent = "";
+        }
+    }
+
+    // 1. Direct Launch / Token Form Submit
+    if (btnBypassLaunch && welcomeTokenForm) {
+        welcomeTokenForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = inputToken.value.trim();
+            if (!token) return;
+
+            hideTokenError();
+            const isVerified = await switchUserSession(token);
+            if (isVerified) {
+                launchQAScreen();
+            } else {
+                showTokenError(`❌ Access Denied: Token "${token}" is invalid or rejected by backend server. Accepted headers: X-MCP-Token, X-Custom-MCP-Token, MCP-Token.`);
+            }
         });
-    });
-
-    // 1. Direct Launch Button (BYPASS AUTH -> Enter Q&A Workspace Immediately)
-    btnBypassLaunch.addEventListener("click", () => {
-        const token = inputToken.value.trim().toUpperCase() || "WW-10928";
-        switchUserSession(token);
-        launchQAScreen();
-    });
-
-    // 2. Token Form Submit
-    welcomeTokenForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const token = inputToken.value.trim().toUpperCase() || "WW-10928";
-        switchUserSession(token);
-        launchQAScreen();
-    });
+    }
 
     // 3. Return to Welcome Screen
     btnReturnWelcome.addEventListener("click", () => {
@@ -112,32 +121,57 @@ document.addEventListener("DOMContentLoaded", () => {
         sendMessage(query);
     });
 
-    // Helper: Switch Identity Profile
-    function switchUserSession(token) {
-        currentToken = token;
-        if (token === "WW-10928") {
-            currentUser = { name: "Alex Rivera", role: "Senior Cloud Developer (US)", initials: "AR" };
-            leaveBalances = { vacation_remaining: 16.0, vacation_accrued: 16.0, sick_remaining: 40.0, sick_accrued: 40.0, sg_childcare_remaining: 0.0 };
-        } else if (token === "SG-40012") {
-            currentUser = { name: "Jun Wei Tan", role: "Regional Operations Lead (Singapore)", initials: "JT" };
-            leaveBalances = { vacation_remaining: 14.0, vacation_accrued: 14.0, sick_remaining: 14.0, sick_accrued: 14.0, sg_childcare_remaining: 6.0 };
-        } else if (token === "WW-88888") {
-            currentUser = { name: "Sarah Chen", role: "Engineering Manager", initials: "SC" };
-            leaveBalances = { vacation_remaining: 80.0, vacation_accrued: 120.0, sick_remaining: 60.0, sick_accrued: 80.0, sg_childcare_remaining: 0.0 };
-        } else {
-            currentUser = { name: `Employee (${token})`, role: "Enterprise User", initials: token.substring(0, 2) };
-            leaveBalances = { vacation_remaining: 24.0, vacation_accrued: 40.0, sick_remaining: 40.0, sick_accrued: 40.0, sg_childcare_remaining: 0.0 };
+    let currentToken = "";
+
+    // Helper: Switch Identity Profile & Validate Token via Backend REST Endpoint
+    async function switchUserSession(token) {
+        if (!token) return false;
+        currentToken = token.trim();
+        hideTokenError();
+
+        try {
+            const response = await fetch("/api/auth/verify", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-MCP-Token": currentToken
+                },
+                body: JSON.stringify({ token: currentToken })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === "SUCCESS" && data.profile) {
+                    const prof = data.profile;
+                    const initials = prof.name ? prof.name.split(" ").map(n => n[0]).join("").toUpperCase() : currentToken.substring(0, 2).toUpperCase();
+                    currentUser = {
+                        name: prof.name || "Enterprise Employee",
+                        role: `${prof.role || "Staff Member"} (${prof.entity || prof.department || "WorkWeek"})`,
+                        initials: initials
+                    };
+                    if (qaUserName) qaUserName.textContent = currentUser.name;
+                    if (qaUserRole) qaUserRole.textContent = currentUser.role;
+                    if (qaAvatarInitials) qaAvatarInitials.textContent = currentUser.initials;
+                    if (qaUserToken) qaUserToken.textContent = currentToken;
+                    if (footerTokenDisplay) footerTokenDisplay.textContent = `Token: ${currentToken}`;
+                    return true;
+                }
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                const detail = errData.detail || `Token "${currentToken}" was rejected by backend server.`;
+                showTokenError(`❌ Access Denied: ${detail} Accepted headers: X-MCP-Token, X-Custom-MCP-Token, MCP-Token.`);
+                return false;
+            }
+        } catch (err) {
+            console.warn("Backend auth verification connection error:", err);
+            showTokenError(`❌ Access Denied: Could not reach backend server to verify token "${currentToken}".`);
+            return false;
         }
 
-        // Update Workspace Displays
-        qaUserName.textContent = currentUser.name;
-        qaUserRole.textContent = currentUser.role;
-        qaAvatarInitials.textContent = currentUser.initials;
-        qaUserToken.textContent = currentToken;
-        footerTokenDisplay.textContent = `Token: ${currentToken}`;
+        return false;
     }
 
-    // Helper: Transition to Screen 2 Q&A Workspace (Bypassing Auth)
+    // Helper: Transition to Screen 2 Q&A Workspace
     function launchQAScreen() {
         screenWelcome.classList.add("hidden");
         screenQA.classList.remove("hidden");
@@ -150,8 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
         starterCanvas.classList.remove("hidden");
     }
 
-    // Standalone Simulation Engine (Bypassing Backend)
-    function sendMessage(userQuery) {
+    // Live Backend Agent Communications
+    async function sendMessage(userQuery) {
         // Hide Starter Canvas on first message
         if (starterCanvas && !starterCanvas.classList.contains("hidden")) {
             starterCanvas.classList.add("hidden");
@@ -164,12 +198,70 @@ document.addEventListener("DOMContentLoaded", () => {
         thinkingIndicator.classList.remove("hidden");
         chatStream.scrollTop = chatStream.scrollHeight;
 
-        // Simulate 500ms AI Processing Delay
-        setTimeout(() => {
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-MCP-Token": currentToken
+                },
+                body: JSON.stringify({
+                    query: userQuery,
+                    employee_token: currentToken
+                })
+            });
+
             thinkingIndicator.classList.add("hidden");
-            const responseData = simulateAgentLogic(userQuery);
+
+            if (response.ok) {
+                const responseData = await response.json();
+                appendAgentBubble(responseData);
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                const responseData = {
+                    response_text: errData.response_text || `⚠️ **Backend Error (${response.status}):** Token authentication failed or request rejected by backend agent server.`,
+                    citations: [],
+                    status: "ERROR"
+                };
+                appendAgentBubble(responseData);
+            }
+        } catch (error) {
+            console.warn("Error contacting backend agent:", error);
+            thinkingIndicator.classList.add("hidden");
+            const responseData = {
+                response_text: `⚠️ **Connection Error:** Could not reach backend agent server.`,
+                citations: [],
+                status: "ERROR"
+            };
             appendAgentBubble(responseData);
-        }, 500);
+        }
+    }
+
+    function createAgentBubblePlaceholder() {
+        const row = document.createElement("div");
+        row.className = "chat-row agent";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar-badge";
+        avatar.innerHTML = `<i class="fa-solid fa-sparkles"></i>`;
+
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+        bubble.innerHTML = "<p><em>Thinking...</em></p>";
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chatStream.appendChild(row);
+        chatStream.scrollTop = chatStream.scrollHeight;
+
+        return { row, bubble };
+    }
+
+    function updateAgentBubbleText(placeholder, text) {
+        if (placeholder && placeholder.bubble) {
+            placeholder.bubble.innerHTML = window.marked ? marked.parse(text) : text;
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
     }
 
     // Client-Side Agent Logic Simulation (Matching SDD/BRD & Rubric Gotchas)
