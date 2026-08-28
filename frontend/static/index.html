@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise HR & IT Agentic Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="dark-theme">
+    <!-- Ambient Background Glow Effects -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <div id="app-root">
+        <!-- ========================================== -->
+        <!-- SCREEN 1: WELCOME & TOKEN ENTRANCE PAGE   -->
+        <!-- ========================================== -->
+        <section id="screen-welcome" class="screen-view">
+            <div class="welcome-container">
+                <!-- Top Brand Header -->
+                <header class="welcome-top-nav">
+                    <div class="brand-badge">
+                        <div class="brand-icon">
+                            <i class="fa-solid fa-sparkles"></i>
+                        </div>
+                        <span class="brand-name">Enterprise AGY Hub</span>
+                    </div>
+                    <div class="top-nav-pills">
+                        <span class="status-pill green"><i class="fa-solid fa-shield-check"></i> System Operational</span>
+                        <span class="version-tag">MVP 1.0</span>
+                    </div>
+                </header>
+
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <h1 class="hero-title">
+                        Next-Gen Conversational <br>
+                        <span class="gradient-text">HR & IT Agentic Assistant</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Seamlessly orchestrating complex self-service transactions across WorkWeek HCM, ServiceImmediately ITSM, and authoritative HR policies (US & Singapore Entities).
+                    </p>
+
+                    <!-- Bypass Auth Direct Action Card -->
+                    <div class="direct-launch-box glass-card">
+                        <div class="launch-header">
+                            <div class="user-avatar-badge">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </div>
+                            <div class="launch-user-info">
+                                <h3>Authenticated Active Session</h3>
+                                <p>Default Profile: <strong>Alex Rivera (WW-10928)</strong> — Senior Cloud Developer</p>
+                            </div>
+                            <button id="btn-bypass-launch" class="btn-hero-launch">
+                                <span>Launch Q&A Workspace</span>
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Token Form Accordion / Option -->
+                    <div class="token-auth-section glass-card">
+                        <div class="section-title">
+                            <i class="fa-solid fa-key"></i>
+                            <span>Switch Employee Token / Identity Delegation</span>
+                        </div>
+                        <form id="welcome-token-form" class="token-form-grid">
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-id-badge input-icon"></i>
+                                <input 
+                                    type="text" 
+                                    id="input-token" 
+                                    placeholder="Enter Employee Token (e.g. WW-10928, SG-40012)"
+                                    value="WW-10928"
+                                    autocomplete="off"
+                                >
+                            </div>
+                            <button type="submit" class="btn-secondary-action">
+                                <span>Apply Token</span>
+                            </button>
+                        </form>
+
+                        <div class="quick-profiles-row">
+                            <span class="row-label">Quick Selection:</span>
+                            <button type="button" class="chip-profile active" data-token="WW-10928">
+                                <i class="fa-solid fa-user"></i> Alex Rivera (WW-10928) [US]
+                            </button>
+                            <button type="button" class="chip-profile" data-token="SG-40012">
+                                <i class="fa-solid fa-user-gear"></i> Jun Wei Tan (SG-40012) [Singapore]
+                            </button>
+                            <button type="button" class="chip-profile" data-token="WW-88888">
+                                <i class="fa-solid fa-user-tie"></i> Sarah Chen (WW-88888) [Manager]
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Security Metrics Grid -->
+                    <div class="security-features-grid">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-shield-halved feature-icon"></i>
+                            <h4>Model Armor Gate</h4>
+                            <p>Pre-LLM injection & jailbreak scanning in &lt;150ms</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-user-shield feature-icon"></i>
+                            <h4>Cloud DLP Redaction</h4>
+                            <p>Ingress & egress SPII masking (SSNs, Card IDs, Passwords)</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-diagram-project feature-icon"></i>
+                            <h4>Saga Orchestration</h4>
+                            <p>Cross-system transaction execution with automatic rollback</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2: CONVERSATIONAL Q&A WORKSPACE     -->
+        <!-- ========================================== -->
+        <section id="screen-qa" class="screen-view hidden">
+            <!-- Sidebar Panel -->
+            <aside id="sidebar" class="qa-sidebar glass-card">
+                <div class="sidebar-top">
+                    <div class="app-logo">
+                        <div class="logo-icon"><i class="fa-solid fa-sparkles"></i></div>
+                        <div class="logo-text">
+                            <h3>HR Agentic</h3>
+                            <span>Decoupled Service</span>
+                        </div>
+                    </div>
+                    <button id="btn-toggle-sidebar" class="btn-icon" title="Toggle Panel">
+                        <i class="fa-solid fa-angles-left"></i>
+                    </button>
+                </div>
+
+                <!-- Active Identity Card -->
+                <div class="identity-card">
+                    <div class="identity-avatar" id="qa-avatar-initials">AR</div>
+                    <div class="identity-info">
+                        <h4 id="qa-user-name">Alex Rivera</h4>
+                        <p id="qa-user-role">Senior Cloud Developer</p>
+                        <div class="identity-tags">
+                            <span class="tag-token" id="qa-user-token">WW-10928</span>
+                            <span class="tag-status"><i class="fa-solid fa-circle"></i> Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Prompts -->
+                <div class="sidebar-nav">
+                    <div class="nav-header">
+                        <span>SUGGESTED USE CASES</span>
+                    </div>
+                    <div class="prompt-chips-column">
+                        <button class="qa-prompt-chip" data-prompt="How many hours of PTO do I currently have accrued?">
+                            <div class="chip-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                            <div class="chip-text">
+                                <strong>Check PTO Balance</strong>
+                                <small>WorkWeek HCM Read</small>
+                            </div>
+                        </button>
+                        <button class="qa-prompt-chip" data-prompt="How many paid childcare leave days do employees in Singapore get per year?">
+                            <div class="chip-icon"><i class="fa-solid fa-child"></i></div>
+                            <div class="chip-text">
+                                <strong>SG Childcare Leave</strong>
+                                <small>Singapore Regional Policy</small>
+                            </div>
+                        </button>
+                        <button class="qa-prompt-chip" data-prompt="I'd like to give a $40 cash tip to a client assistant as a thank-you. That's under $50, so no approval needed, right?">
+                            <div class="chip-icon"><i class="fa-solid fa-gift"></i></div>
+                            <div class="chip-text">
+                                <strong>Cash Tip Gotcha</strong>
+                                <small>Ethics Prohibited Category</small>
+                            </div>
+                        </button>
+                        <button class="qa-prompt-chip" data-prompt="I just read the remote work policy and saw I'm eligible for a home office monitor. Can you verify my remote status and order one for me?">
+                            <div class="chip-icon"><i class="fa-solid fa-desktop"></i></div>
+                            <div class="chip-text">
+                                <strong>Order Home Monitor</strong>
+                                <small>UC-2.1 Equipment Procurement</small>
+                            </div>
+                        </button>
+                        <button class="qa-prompt-chip" data-prompt="What is Altostrat's tuition reimbursement policy for employees pursuing a part-time master's degree?">
+                            <div class="chip-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="chip-text">
+                                <strong>Tuition Refusal Check</strong>
+                                <small>Abstention / Absent Policy</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sidebar Actions -->
+                <div class="sidebar-bottom">
+                    <button id="btn-return-welcome" class="btn-outlined">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Return to Welcome Screen</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Q&A Content Area -->
+            <main class="qa-workspace">
+                <!-- Header Control Bar -->
+                <header class="qa-header glass-card">
+                    <div class="header-left">
+                        <h2>Conversational Q&A Assistant</h2>
+                        <span class="subtitle-text">Multi-Agent Orchestration & Policy Grounding</span>
+                    </div>
+
+                    <div class="header-right">
+                        <div class="backend-pill">
+                            <span class="dot-pulse"></span>
+                            <span id="backend-label">Standalone Frontend Service: Running</span>
+                        </div>
+                        <button id="btn-new-chat" class="btn-icon-action" title="New Session">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Q&A Conversation Container -->
+                <div id="chat-stream" class="chat-stream-container">
+                    <!-- Starter Canvas -->
+                    <div id="starter-canvas" class="starter-canvas">
+                        <div class="starter-hero">
+                            <div class="starter-sparkle"><i class="fa-solid fa-sparkles"></i></div>
+                            <h2>How can I assist you today?</h2>
+                            <p>Select a quick action card or type your inquiry below.</p>
+                        </div>
+
+                        <div class="starter-cards-grid">
+                            <div class="starter-card" data-prompt="How many hours of PTO do I currently have accrued?">
+                                <div class="card-icon blue"><i class="fa-solid fa-calendar-days"></i></div>
+                                <h4>Check PTO Balance</h4>
+                                <p>Fetch real-time vacation & sick leave from WorkWeek HCM.</p>
+                            </div>
+                            <div class="starter-card" data-prompt="How many paid childcare leave days do employees in Singapore get per year?">
+                                <div class="card-icon purple"><i class="fa-solid fa-child"></i></div>
+                                <h4>Singapore Childcare Leave</h4>
+                                <p>Query regional SG statutory leave entitlements.</p>
+                            </div>
+                            <div class="starter-card" data-prompt="I'd like to give a $40 cash tip to a client assistant as a thank-you. That's under $50, so no approval needed, right?">
+                                <div class="card-icon green"><i class="fa-solid fa-gift"></i></div>
+                                <h4>Cash Tip Ethics Gotcha</h4>
+                                <p>Check prohibited cash courtesy rules vs approval limits.</p>
+                            </div>
+                            <div class="starter-card" data-prompt="What is Altostrat's tuition reimbursement policy for employees pursuing a part-time master's degree?">
+                                <div class="card-icon amber"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <h4>Tuition Abstention Refusal</h4>
+                                <p>Test refusal for unindexed / absent policies.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing / Thinking Indicator -->
+                <div id="thinking-indicator" class="thinking-bar hidden">
+                    <div class="thinking-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="thinking-text">Supervisor routing intent & executing tools...</span>
+                </div>
+
+                <!-- Floating Input Capsule Bar -->
+                <footer class="input-capsule-wrapper">
+                    <form id="qa-form" class="input-capsule glass-card">
+                        <textarea 
+                            id="qa-textarea" 
+                            placeholder="Ask a policy question or request an HR/IT transaction..."
+                            rows="1"
+                            required
+                        ></textarea>
+                        <div class="input-actions">
+                            <button type="submit" id="btn-submit-qa" class="btn-send-capsule">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="capsule-footer">
+                        <span><i class="fa-solid fa-lock"></i> Model Armor Pre-Scan Enabled (&lt;150ms)</span>
+                        <span><i class="fa-solid fa-shield-cat"></i> Cloud DLP Redacted</span>
+                        <span id="footer-token-display">Token: WW-10928</span>
+                    </div>
+                </footer>
+            </main>
+        </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
