@@ -1432,6 +1432,7 @@ dependencies = [
     { name = "google-cloud-logging" },
     { name = "nest-asyncio" },
     { name = "opentelemetry-resourcedetector-gcp" },
+    { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
@@ -1464,6 +1465,7 @@ requires-dist = [
     { name = "google-cloud-logging", specifier = ">=3.12.0,<4.0.0" },
     { name = "nest-asyncio", specifier = ">=1.6.0,<2.0.0" },
     { name = "opentelemetry-resourcedetector-gcp", specifier = "<=1.12.0a0" },
+    { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.4.6,<1.0.0" },
     { name = "ty", marker = "extra == 'lint'", specifier = ">=0.0.1a0" },
 ]

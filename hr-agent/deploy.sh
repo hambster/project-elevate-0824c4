@@ -1,13 +1,53 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Deploy hr-agent to Google Cloud Run
+# Defaults to dev environment (hr-agent-dev) for dev testing.
+# Pass --prod to deploy to production (hr-agent).
 # ==============================================================================
 set -euo pipefail
+
+# Parse CLI flags
+ENVIRONMENT="${ENVIRONMENT:-${ENV:-dev}}"
+SERVICE_NAME_OVERRIDE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prod|--production)
+      ENVIRONMENT="prod"
+      shift
+      ;;
+    --dev|--development)
+      ENVIRONMENT="dev"
+      shift
+      ;;
+    --env)
+      ENVIRONMENT="$2"
+      shift 2
+      ;;
+    --service-name)
+      SERVICE_NAME_OVERRIDE="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      echo "Usage: $0 [--dev | --prod] [--env <name>] [--service-name <name>]"
+      exit 1
+      ;;
+  esac
+done
 
 # Configuration defaults
 PROJECT_ID="${GCP_PROJECT_ID:-project-elevate-0824c4}"
 REGION="${GCP_REGION:-asia-east1}"
-SERVICE_NAME="${SERVICE_NAME:-hr-agent}"
+
+if [ -n "${SERVICE_NAME_OVERRIDE}" ]; then
+  SERVICE_NAME="${SERVICE_NAME_OVERRIDE}"
+elif [ "${ENVIRONMENT}" = "prod" ] || [ "${ENVIRONMENT}" = "production" ]; then
+  SERVICE_NAME="${SERVICE_NAME:-hr-agent}"
+else
+  SERVICE_NAME="${SERVICE_NAME:-hr-agent-dev}"
+fi
+
 MEMORY="${MEMORY:-2Gi}"
 CPU="${CPU:-1}"
 CONCURRENCY="${CONCURRENCY:-8}"
@@ -19,9 +59,11 @@ ALLOW_UNAUTHENTICATED="${ALLOW_UNAUTHENTICATED:-true}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
+ENV_UPPER=$(echo "${ENVIRONMENT}" | tr '[:lower:]' '[:upper:]')
 echo "============================================================"
-echo " Deploying ${SERVICE_NAME} to Google Cloud Run"
+echo " Deploying to Google Cloud Run (${ENV_UPPER})"
 echo "============================================================"
+echo " Environment           : ${ENVIRONMENT}"
 echo " Project ID            : ${PROJECT_ID}"
 echo " Region                : ${REGION}"
 echo " Service Name          : ${SERVICE_NAME}"
@@ -77,7 +119,7 @@ if [ "${ALLOW_UNAUTHENTICATED}" = "true" ]; then
   AUTH_FLAG="--allow-unauthenticated"
 fi
 
-echo "==> Deploying Cloud Run service from source with unauthenticated access enabled..."
+echo "==> Deploying Cloud Run service '${SERVICE_NAME}' from source..."
 gcloud run deploy "${SERVICE_NAME}" \
   --source . \
   --project="${PROJECT_ID}" \
@@ -108,6 +150,8 @@ echo ""
 echo "============================================================"
 echo " Deployment Complete!"
 SERVICE_URL=$(gcloud run services describe "${SERVICE_NAME}" --project="${PROJECT_ID}" --region="${REGION}" --format='value(status.url)')
+echo " Environment : ${ENVIRONMENT}"
+echo " Service Name: ${SERVICE_NAME}"
 echo " Service URL : ${SERVICE_URL}"
 echo " Access      : Public (Unauthenticated)"
 echo "============================================================"

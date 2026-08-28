@@ -1,4 +1,4 @@
-"""Tools package for HR Agentic Solution."""
+from app.tools.okf_tool import list_concepts, read_concept
 from app.tools.policy_tools import search_hr_policies
 from app.tools.workweek_tools import (
     get_worker_profile,
@@ -21,6 +21,8 @@ from app.tools.saga_tools import (
 )
 
 __all__ = [
+    "list_concepts",
+    "read_concept",
     "search_hr_policies",
     "get_worker_profile",
     "update_worker_contact",

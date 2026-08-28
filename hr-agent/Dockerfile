@@ -21,6 +21,7 @@ WORKDIR /code
 COPY ./pyproject.toml ./README.md ./.env* ./
 
 COPY ./app ./app
+COPY ./knowledge ./knowledge
 
 RUN uv sync --no-dev --default-index https://pypi.org/simple
 
