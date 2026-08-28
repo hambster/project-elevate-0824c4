@@ -44,5 +44,11 @@ class Settings:
     default_employee_id: str = os.getenv("DEFAULT_EMPLOYEE_ID", "WW-10928")
     default_user_email: str = os.getenv("DEFAULT_USER_EMAIL", "alex.rivera@example.com")
 
+    # Knowledge & OKF Settings
+    knowledge_dir: str = os.getenv(
+        "KNOWLEDGE_DIR",
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "knowledge")
+    )
+
 
 settings = Settings()
