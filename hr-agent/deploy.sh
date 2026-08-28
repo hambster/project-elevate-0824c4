@@ -59,8 +59,9 @@ ALLOW_UNAUTHENTICATED="${ALLOW_UNAUTHENTICATED:-true}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
+ENV_UPPER=$(echo "${ENVIRONMENT}" | tr '[:lower:]' '[:upper:]')
 echo "============================================================"
-echo " Deploying to Google Cloud Run (${ENVIRONMENT^^})"
+echo " Deploying to Google Cloud Run (${ENV_UPPER})"
 echo "============================================================"
 echo " Environment           : ${ENVIRONMENT}"
 echo " Project ID            : ${PROJECT_ID}"
